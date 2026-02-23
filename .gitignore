@@ -1,0 +1,52 @@
+# ── Build output ─────────────────────────────────────────────────
+[Bb]in/
+[Oo]bj/
+[Oo]ut/
+[Ll]og/
+[Ll]ogs/
+
+# ── Visual Studio / Rider ─────────────────────────────────────────
+.vs/
+.idea/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+*.userprefs
+
+# ── NuGet ────────────────────────────────────────────────────────
+*.nupkg
+*.snupkg
+project.lock.json
+project.fragment.lock.json
+artifacts/
+packages/
+!**/[Pp]ackages/build/
+
+# ── .NET / MSBuild generated ──────────────────────────────────────
+project.assets.json
+project.nuget.cache
+*.csproj.nuget.dgspec.json
+*.csproj.nuget.g.props
+*.csproj.nuget.g.targets
+*.[Pp]ublish.xml
+*.azurePubxml
+*.pubxml
+*.publishproj
+
+# ── OS junk ──────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ── Secrets / env ─────────────────────────────────────────────────
+*.env
+secrets.json
+appsettings.Development.json
+
+# ── Test results ──────────────────────────────────────────────────
+[Tt]est[Rr]esult*/
+[Bb]uild[Ll]og.*
+*.trx
+*.coverage
+*.coveragexml
