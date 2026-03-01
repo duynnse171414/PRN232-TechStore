@@ -66,8 +66,8 @@ public partial class TechStoreDBContext : DbContext
         {
             entity.ToTable("role");
             entity.Property(e => e.Id).HasColumnName("id").ValueGeneratedNever();
-            entity.Property(e => e.Name).HasMaxLength(50).HasColumnName("name");
-            entity.Property(e => e.Description).HasMaxLength(255).HasColumnName("description");
+            entity.Property(e => e.Name).HasMaxLength(100).IsRequired().HasColumnName("name");
+            entity.Property(e => e.Description).HasMaxLength(510).HasColumnName("description");
             entity.HasIndex(e => e.Name).IsUnique().HasDatabaseName("UQ_role_name");
         });
 
@@ -76,8 +76,8 @@ public partial class TechStoreDBContext : DbContext
         {
             entity.ToTable("user");
             entity.Property(e => e.Id).HasColumnName("id");
-            entity.Property(e => e.Email).HasMaxLength(255).HasColumnName("email");
-            entity.Property(e => e.PasswordHash).HasMaxLength(500).HasColumnName("password_hash");
+            entity.Property(e => e.Email).HasMaxLength(510).IsRequired().HasColumnName("email");
+            entity.Property(e => e.PasswordHash).HasMaxLength(1000).IsRequired().HasColumnName("password_hash");
             entity.Property(e => e.RoleId).HasColumnName("role_id").HasDefaultValue(1);
             entity.Property(e => e.CreatedAt)
                 .HasDefaultValueSql("(getdate())")
@@ -103,9 +103,9 @@ public partial class TechStoreDBContext : DbContext
             entity.ToTable("customer");
             entity.Property(e => e.Id).HasColumnName("id");
             entity.Property(e => e.UserId).HasColumnName("user_id");
-            entity.Property(e => e.Name).HasMaxLength(255).HasColumnName("name");
-            entity.Property(e => e.Email).HasMaxLength(255).HasColumnName("email");
-            entity.Property(e => e.Phone).HasMaxLength(50).HasColumnName("phone");
+            entity.Property(e => e.Name).HasMaxLength(510).IsRequired().HasColumnName("name");
+            entity.Property(e => e.Email).HasMaxLength(510).HasColumnName("email");
+            entity.Property(e => e.Phone).HasMaxLength(100).HasColumnName("phone");
             entity.Property(e => e.CreatedAt)
                 .HasDefaultValueSql("(getdate())")
                 .HasColumnType("datetime")
@@ -120,12 +120,12 @@ public partial class TechStoreDBContext : DbContext
             entity.ToTable("address");
             entity.HasIndex(e => e.CustomerId, "IX_address_customer_id");
             entity.Property(e => e.Id).HasColumnName("id");
-            entity.Property(e => e.AddressLine).HasMaxLength(500).HasColumnName("address_line");
-            entity.Property(e => e.City).HasMaxLength(100).HasColumnName("city");
+            entity.Property(e => e.AddressLine).HasMaxLength(1000).HasColumnName("address_line");
+            entity.Property(e => e.City).HasMaxLength(200).HasColumnName("city");
             entity.Property(e => e.CustomerId).HasColumnName("customer_id");
-            entity.Property(e => e.District).HasMaxLength(100).HasColumnName("district");
+            entity.Property(e => e.District).HasMaxLength(200).HasColumnName("district");
             entity.Property(e => e.IsDefault).HasDefaultValue(false).HasColumnName("is_default");
-            entity.Property(e => e.Ward).HasMaxLength(100).HasColumnName("ward");
+            entity.Property(e => e.Ward).HasMaxLength(200).HasColumnName("ward");
 
             entity.HasOne(d => d.Customer).WithMany(p => p.Addresses)
                 .HasForeignKey(d => d.CustomerId)
@@ -137,7 +137,7 @@ public partial class TechStoreDBContext : DbContext
         {
             entity.ToTable("brand");
             entity.Property(e => e.Id).HasColumnName("id");
-            entity.Property(e => e.Name).HasMaxLength(255).HasColumnName("name");
+            entity.Property(e => e.Name).HasMaxLength(510).HasColumnName("name");
         });
 
         // ── CATEGORY ─────────────────────────────────────────────────
@@ -145,7 +145,7 @@ public partial class TechStoreDBContext : DbContext
         {
             entity.ToTable("category");
             entity.Property(e => e.Id).HasColumnName("id");
-            entity.Property(e => e.Name).HasMaxLength(255).HasColumnName("name");
+            entity.Property(e => e.Name).HasMaxLength(510).HasColumnName("name");
         });
 
         // ── CART ─────────────────────────────────────────────────────
@@ -174,7 +174,7 @@ public partial class TechStoreDBContext : DbContext
             entity.Property(e => e.Id).HasColumnName("id");
             entity.Property(e => e.CartId).HasColumnName("cart_id");
             entity.Property(e => e.ProductId).HasColumnName("product_id");
-            entity.Property(e => e.Quantity).HasDefaultValue(1).HasColumnName("quantity");
+            entity.Property(e => e.Quantity).HasDefaultValue(1).IsRequired().HasColumnName("quantity");
 
             entity.HasOne(d => d.Cart).WithMany(p => p.CartItems)
                 .HasForeignKey(d => d.CartId)
@@ -201,7 +201,7 @@ public partial class TechStoreDBContext : DbContext
                 .HasColumnName("created_at");
             entity.Property(e => e.CustomerId).HasColumnName("customer_id");
             entity.Property(e => e.Status)
-                .HasMaxLength(50)
+                .HasMaxLength(100)
                 .HasDefaultValue("pending")
                 .HasColumnName("status");
             entity.Property(e => e.TotalAmount).HasColumnType("decimal(18, 2)").HasColumnName("total_amount");
@@ -209,8 +209,8 @@ public partial class TechStoreDBContext : DbContext
                 .HasColumnType("decimal(18, 2)")
                 .HasDefaultValue(0m)
                 .HasColumnName("shipping_fee");
-            entity.Property(e => e.Notes).HasMaxLength(500).HasColumnName("notes");
-            entity.Property(e => e.TrackingNumber).HasMaxLength(100).HasColumnName("tracking_number");
+            entity.Property(e => e.Notes).HasMaxLength(1000).HasColumnName("notes");
+            entity.Property(e => e.TrackingNumber).HasMaxLength(200).HasColumnName("tracking_number");
 
             entity.HasOne(d => d.Address).WithMany(p => p.Orders)
                 .HasForeignKey(d => d.AddressId)
@@ -233,7 +233,7 @@ public partial class TechStoreDBContext : DbContext
             entity.Property(e => e.OrderId).HasColumnName("order_id");
             entity.Property(e => e.Price).HasColumnType("decimal(18, 2)").HasColumnName("price");
             entity.Property(e => e.ProductId).HasColumnName("product_id");
-            entity.Property(e => e.Quantity).HasDefaultValue(1).HasColumnName("quantity");
+            entity.Property(e => e.Quantity).HasDefaultValue(1).IsRequired().HasColumnName("quantity");
 
             entity.HasOne(d => d.Order).WithMany(p => p.OrderItems)
                 .HasForeignKey(d => d.OrderId)
@@ -251,11 +251,11 @@ public partial class TechStoreDBContext : DbContext
             entity.ToTable("payment");
             entity.HasIndex(e => e.OrderId, "IX_payment_order_id");
             entity.Property(e => e.Id).HasColumnName("id");
-            entity.Property(e => e.Method).HasMaxLength(50).HasColumnName("method");
+            entity.Property(e => e.Method).HasMaxLength(100).HasColumnName("method");
             entity.Property(e => e.OrderId).HasColumnName("order_id");
             entity.Property(e => e.PaidAt).HasColumnType("datetime").HasColumnName("paid_at");
             entity.Property(e => e.Status)
-                .HasMaxLength(50)
+                .HasMaxLength(100)
                 .HasDefaultValue("pending")
                 .HasColumnName("status");
 
@@ -277,10 +277,10 @@ public partial class TechStoreDBContext : DbContext
                 .HasDefaultValueSql("(getdate())")
                 .HasColumnType("datetime")
                 .HasColumnName("created_at");
-            entity.Property(e => e.Name).HasMaxLength(255).HasColumnName("name");
-            entity.Property(e => e.Sku).HasMaxLength(100).HasColumnName("sku");
+            entity.Property(e => e.Name).HasMaxLength(510).HasColumnName("name");
+            entity.Property(e => e.Sku).HasMaxLength(200).HasColumnName("sku");
             entity.Property(e => e.Description).HasColumnName("description");
-            entity.Property(e => e.Warranty).HasMaxLength(500).HasColumnName("warranty");
+            entity.Property(e => e.Warranty).HasMaxLength(1000).HasColumnName("warranty");
             entity.Property(e => e.Price).HasColumnType("decimal(18, 2)").HasColumnName("price");
             entity.Property(e => e.Stock).HasDefaultValue(0).HasColumnName("stock");
 
@@ -318,7 +318,7 @@ public partial class TechStoreDBContext : DbContext
             entity.ToTable("product_image");
             entity.HasIndex(e => e.ProductId, "IX_product_image_product_id");
             entity.Property(e => e.Id).HasColumnName("id");
-            entity.Property(e => e.ImageUrl).HasMaxLength(1000).HasColumnName("image_url");
+            entity.Property(e => e.ImageUrl).HasMaxLength(2000).HasColumnName("image_url");
             entity.Property(e => e.ProductId).HasColumnName("product_id");
 
             entity.HasOne(d => d.Product).WithMany(p => p.ProductImages)
@@ -333,8 +333,8 @@ public partial class TechStoreDBContext : DbContext
             entity.HasIndex(e => e.ProductId, "IX_product_spec_product_id");
             entity.Property(e => e.Id).HasColumnName("id");
             entity.Property(e => e.ProductId).HasColumnName("product_id");
-            entity.Property(e => e.SpecKey).HasMaxLength(100).HasColumnName("spec_key");
-            entity.Property(e => e.SpecValue).HasMaxLength(500).HasColumnName("spec_value");
+            entity.Property(e => e.SpecKey).HasMaxLength(200).HasColumnName("spec_key");
+            entity.Property(e => e.SpecValue).HasMaxLength(1000).HasColumnName("spec_value");
 
             entity.HasOne(d => d.Product).WithMany(p => p.ProductSpecs)
                 .HasForeignKey(d => d.ProductId)
@@ -348,7 +348,7 @@ public partial class TechStoreDBContext : DbContext
             entity.Property(e => e.Id).HasColumnName("id");
             entity.Property(e => e.DiscountPercent).HasColumnName("discount_percent");
             entity.Property(e => e.EndDate).HasColumnType("datetime").HasColumnName("end_date");
-            entity.Property(e => e.Name).HasMaxLength(255).HasColumnName("name");
+            entity.Property(e => e.Name).HasMaxLength(510).HasColumnName("name");
             entity.Property(e => e.StartDate).HasColumnType("datetime").HasColumnName("start_date");
         });
 
@@ -357,9 +357,9 @@ public partial class TechStoreDBContext : DbContext
         {
             entity.ToTable("pc_component_type");
             entity.Property(e => e.Id).HasColumnName("id");
-            entity.Property(e => e.Name).HasMaxLength(100).HasColumnName("name");
-            entity.Property(e => e.IsRequired).HasDefaultValue(true).HasColumnName("is_required");
-            entity.Property(e => e.SortOrder).HasDefaultValue(0).HasColumnName("sort_order");
+            entity.Property(e => e.Name).HasMaxLength(200).IsRequired().HasColumnName("name");
+            entity.Property(e => e.IsRequired).HasDefaultValue(true).IsRequired().HasColumnName("is_required");
+            entity.Property(e => e.SortOrder).HasDefaultValue(0).IsRequired().HasColumnName("sort_order");
         });
 
         // ── PC BUILD ─────────────────────────────────────────────────
@@ -368,7 +368,7 @@ public partial class TechStoreDBContext : DbContext
             entity.ToTable("pc_build");
             entity.Property(e => e.Id).HasColumnName("id");
             entity.Property(e => e.UserId).HasColumnName("user_id");
-            entity.Property(e => e.Name).HasMaxLength(255).HasColumnName("name");
+            entity.Property(e => e.Name).HasMaxLength(510).HasColumnName("name");
             entity.Property(e => e.TotalPrice).HasColumnType("decimal(18, 2)").HasColumnName("total_price");
             entity.Property(e => e.CreatedAt)
                 .HasDefaultValueSql("(getdate())")
