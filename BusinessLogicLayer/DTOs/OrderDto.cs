@@ -27,6 +27,13 @@ public class PlaceOrderRequest
     public List<OrderItemDto> Items { get; set; } = new();
 }
 
+/// <summary>Body request checkout từ giỏ hàng (ưu tiên cho FE)</summary>
+public class CheckoutFromCartRequest
+{
+    public long? AddressId { get; set; }
+    public string Notes { get; set; }
+}
+
 public class OrderItemDto
 {
     public long ProductId { get; set; }
@@ -59,4 +66,12 @@ public class UpdateOrderStatusDto
 {
     public string Status { get; set; }
     public string TrackingNumber { get; set; }
+}
+
+public class PaymentStatusDto
+{
+    public long OrderId { get; set; }
+    public string PaymentStatus { get; set; }
+    public string PaymentMethod { get; set; }
+    public DateTime? PaidAt { get; set; }
 }
