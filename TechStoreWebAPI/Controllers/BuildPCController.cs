@@ -35,9 +35,16 @@ public class BuildPCController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> CreateBuild([FromBody] CreateBuildDto dto)
     {
-        dto.UserId ??= TryGetUserId();
-        var build = await _buildPCService.CreateBuildAsync(dto);
-        return Ok(build);
+        try
+        {
+            dto.UserId ??= TryGetUserId();
+            var build = await _buildPCService.CreateBuildAsync(dto);
+            return Ok(build);
+        }
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
     }
 
     /// <summary>F23 – Xem cấu hình Build PC theo ID</summary>

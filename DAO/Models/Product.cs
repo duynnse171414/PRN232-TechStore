@@ -25,6 +25,8 @@ public partial class Product
 
     public int? Stock { get; set; }
 
+    public long? ComponentTypeId { get; set; }
+
     public DateTime? CreatedAt { get; set; }
 
     public virtual Brand Brand { get; set; }
@@ -32,6 +34,8 @@ public partial class Product
     public virtual ICollection<CartItem> CartItems { get; set; } = new List<CartItem>();
 
     public virtual Category Category { get; set; }
+
+    public virtual PcComponentType ComponentType { get; set; }
 
     public virtual ICollection<OrderItem> OrderItems { get; set; } = new List<OrderItem>();
 

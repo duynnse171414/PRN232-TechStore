@@ -14,4 +14,6 @@ public partial class PcComponentType
     public int SortOrder { get; set; }
 
     public virtual ICollection<PcBuildItem> PcBuildItems { get; set; } = new List<PcBuildItem>();
+
+    public virtual ICollection<Product> Products { get; set; } = new List<Product>();
 }
