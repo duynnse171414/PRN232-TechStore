@@ -40,7 +40,7 @@ public class UpdateProductDto : CreateProductDto { }
 
 public class ProductFilterDto
 {
-    public string Search { get; set; }
+    public string? Search { get; set; }
     public long? CategoryId { get; set; }
     public long? BrandId { get; set; }
     public decimal? MinPrice { get; set; }
