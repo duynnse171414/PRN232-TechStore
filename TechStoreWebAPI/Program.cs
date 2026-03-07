@@ -11,6 +11,17 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
 
+// CORS for Frontend (Browser)
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowFE", policy =>
+        policy
+            .WithOrigins("http://localhost:3001", "http://localhost:5173")
+            .AllowAnyHeader()
+            .AllowAnyMethod()
+            .AllowCredentials());
+});
+
 // Database
 builder.Services.AddDbContext<TechStoreDBContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("MyCnn")));
@@ -73,6 +84,7 @@ app.UseSwaggerUI();
 app.MapGet("/", () => Results.Redirect("/swagger")).ExcludeFromDescription();
 
 app.UseHttpsRedirection();
+app.UseCors("AllowFE");
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();

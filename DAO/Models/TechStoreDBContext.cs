@@ -270,9 +270,11 @@ public partial class TechStoreDBContext : DbContext
             entity.ToTable("product");
             entity.HasIndex(e => e.BrandId, "IX_product_brand_id");
             entity.HasIndex(e => e.CategoryId, "IX_product_category_id");
+            entity.HasIndex(e => e.ComponentTypeId, "IX_product_component_type_id");
             entity.Property(e => e.Id).HasColumnName("id");
             entity.Property(e => e.BrandId).HasColumnName("brand_id");
             entity.Property(e => e.CategoryId).HasColumnName("category_id");
+            entity.Property(e => e.ComponentTypeId).HasColumnName("component_type_id");
             entity.Property(e => e.CreatedAt)
                 .HasDefaultValueSql("(getdate())")
                 .HasColumnType("datetime")
@@ -293,6 +295,11 @@ public partial class TechStoreDBContext : DbContext
                 .HasForeignKey(d => d.CategoryId)
                 .OnDelete(DeleteBehavior.SetNull)
                 .HasConstraintName("FK_product_category");
+
+            entity.HasOne(d => d.ComponentType).WithMany(p => p.Products)
+                .HasForeignKey(d => d.ComponentTypeId)
+                .OnDelete(DeleteBehavior.SetNull)
+                .HasConstraintName("FK_product_component_type");
 
             entity.HasMany(d => d.Promotions).WithMany(p => p.Products)
                 .UsingEntity<Dictionary<string, object>>(
