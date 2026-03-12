@@ -64,4 +64,49 @@ public class BuildPCController : ControllerBase
         var builds = await _buildPCService.GetUserBuildsAsync(userId);
         return Ok(builds);
     }
+
+    /// <summary>F23 – Cập nhật cấu hình Build PC</summary>
+    [HttpPut("{buildId}")]
+    [Authorize]
+    public async Task<IActionResult> UpdateBuild(long buildId, [FromBody] UpdateBuildDto dto)
+    {
+        try
+        {
+            var build = await _buildPCService.UpdateBuildAsync(buildId, TryGetUserId()!.Value, dto);
+            return Ok(build);
+        }
+        catch (KeyNotFoundException)
+        {
+            return NotFound(new { message = "Build không tồn tại hoặc không thuộc về bạn." });
+        }
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
+    }
+
+    /// <summary>F23 – Xóa cấu hình Build PC</summary>
+    [HttpDelete("{buildId}")]
+    [Authorize]
+    public async Task<IActionResult> DeleteBuild(long buildId)
+    {
+        var deleted = await _buildPCService.DeleteBuildAsync(buildId, TryGetUserId()!.Value);
+        return deleted ? NoContent() : NotFound();
+    }
+
+    /// <summary>Thêm tất cả linh kiện trong build vào giỏ hàng</summary>
+    [HttpPost("{buildId}/add-to-cart")]
+    [Authorize]
+    public async Task<IActionResult> AddBuildToCart(long buildId)
+    {
+        try
+        {
+            await _buildPCService.AddBuildToCartAsync(buildId, TryGetUserId()!.Value);
+            return Ok(new { message = "Đã thêm linh kiện từ build vào giỏ hàng." });
+        }
+        catch (KeyNotFoundException)
+        {
+            return NotFound(new { message = "Build không tồn tại." });
+        }
+    }
 }

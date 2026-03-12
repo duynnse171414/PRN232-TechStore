@@ -137,7 +137,7 @@ public partial class TechStoreDBContext : DbContext
         {
             entity.ToTable("brand");
             entity.Property(e => e.Id).HasColumnName("id");
-            entity.Property(e => e.Name).HasMaxLength(510).HasColumnName("name");
+            entity.Property(e => e.Name).HasMaxLength(510).HasColumnName("name").IsRequired();
         });
 
         // ── CATEGORY ─────────────────────────────────────────────────
@@ -160,8 +160,8 @@ public partial class TechStoreDBContext : DbContext
                 .HasColumnType("datetime")
                 .HasColumnName("created_at");
 
-            entity.HasOne(d => d.User).WithMany(p => p.Carts)
-                .HasForeignKey(d => d.UserId)
+            entity.HasOne(d => d.User).WithOne(p => p.Cart)
+                .HasForeignKey<Cart>(d => d.UserId)
                 .HasConstraintName("FK_cart_user");
         });
 
@@ -258,6 +258,7 @@ public partial class TechStoreDBContext : DbContext
                 .HasMaxLength(100)
                 .HasDefaultValue("pending")
                 .HasColumnName("status");
+            entity.Property(e => e.Amount).HasColumnType("decimal(18, 2)").HasColumnName("amount");
 
             entity.HasOne(d => d.Order).WithMany(p => p.Payments)
                 .HasForeignKey(d => d.OrderId)

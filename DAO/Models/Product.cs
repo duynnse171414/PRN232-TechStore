@@ -21,9 +21,9 @@ public partial class Product
 
     public long? CategoryId { get; set; }
 
-    public decimal? Price { get; set; }
+    public decimal Price { get; set; }
 
-    public int? Stock { get; set; }
+    public int Stock { get; set; }
 
     public long? ComponentTypeId { get; set; }
 

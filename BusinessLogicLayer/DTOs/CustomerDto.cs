@@ -36,6 +36,14 @@ public class AddressDto
     public bool? IsDefault { get; set; }
 }
 
+public class UpdateAddressDto
+{
+    public string AddressLine { get; set; }
+    public string City { get; set; }
+    public string District { get; set; }
+    public string Ward { get; set; }
+}
+
 public class CreateAddressDto
 {
     public string AddressLine { get; set; }

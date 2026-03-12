@@ -23,6 +23,8 @@ public interface ICustomerService
 
     Task<List<AddressDto>> GetAddressesAsync(long customerId);
     Task<AddressDto> AddAddressAsync(long customerId, CreateAddressDto dto);
+    Task<AddressDto> UpdateAddressAsync(long customerId, long addressId, UpdateAddressDto dto);
+    Task<bool> SetDefaultAddressAsync(long customerId, long addressId);
     Task<bool> DeleteAddressAsync(long customerId, long addressId);
 
     Task<List<CustomerProfileDto>> GetAllCustomersAsync();

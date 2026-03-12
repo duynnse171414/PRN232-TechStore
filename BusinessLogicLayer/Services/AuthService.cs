@@ -69,6 +69,21 @@ public class AuthService : IAuthService
         return BuildResult(user, user.Customer?.Id);
     }
 
+    public async Task ChangePasswordAsync(long userId, ChangePasswordDto dto)
+    {
+        var user = await _db.Users.FindAsync(userId)
+            ?? throw new KeyNotFoundException("User không tồn tại.");
+
+        if (!VerifyPassword(dto.CurrentPassword, user.PasswordHash))
+            throw new UnauthorizedAccessException("Mật khẩu hiện tại không đúng.");
+
+        if (string.IsNullOrWhiteSpace(dto.NewPassword) || dto.NewPassword.Length < 6)
+            throw new InvalidOperationException("Mật khẩu mới phải có ít nhất 6 ký tự.");
+
+        user.PasswordHash = HashPassword(dto.NewPassword);
+        await _db.SaveChangesAsync();
+    }
+
     private AuthResultDto BuildResult(User user, long? customerId) => new()
     {
         Token = GenerateJwt(user),

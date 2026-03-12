@@ -32,7 +32,7 @@ public class OrderService : IOrderService
                 throw new InvalidOperationException("Số lượng sản phẩm phải lớn hơn 0.");
 
             var p = products[item.ProductId];
-            if ((p.Stock ?? 0) < item.Quantity)
+            if (p.Stock < item.Quantity)
                 throw new InvalidOperationException($"Sản phẩm '{p.Name}' không đủ tồn kho.");
         }
 
@@ -52,7 +52,7 @@ public class OrderService : IOrderService
             }).ToList()
         };
 
-        order.TotalAmount = order.OrderItems.Sum(oi => (oi.Price ?? 0) * (oi.Quantity ?? 1));
+        order.TotalAmount = order.OrderItems.Sum(oi => oi.Price * oi.Quantity);
 
         _db.Orders.Add(order);
 
@@ -86,7 +86,7 @@ public class OrderService : IOrderService
         var items = cart.CartItems.Select(ci => new OrderItemDto
         {
             ProductId = ci.ProductId,
-            Quantity = ci.Quantity ?? 1
+            Quantity = ci.Quantity
         }).ToList();
 
         var order = await CreateOrderAsync(new CreateOrderDto
@@ -121,12 +121,12 @@ public class OrderService : IOrderService
         foreach (var item in order.OrderItems)
         {
             var product = item.Product;
-            var quantity = item.Quantity ?? 1;
+            var quantity = item.Quantity;
 
-            if ((product.Stock ?? 0) < quantity)
+            if (product.Stock < quantity)
                 throw new InvalidOperationException($"Sản phẩm '{product.Name}' không đủ tồn kho để thanh toán.");
 
-            product.Stock = (product.Stock ?? 0) - quantity;
+            product.Stock -= quantity;
         }
 
         order.Status = "paid";
@@ -276,6 +276,31 @@ public class OrderService : IOrderService
 
         await _db.SaveChangesAsync();
         return await GetByIdAsync(id);
+    }
+
+    public async Task<OrderResponseDto> CancelOrderAsync(long orderId, long userId)
+    {
+        var order = await _db.Orders
+            .Include(o => o.Customer)
+            .Include(o => o.OrderItems)
+            .FirstOrDefaultAsync(o => o.Id == orderId)
+            ?? throw new KeyNotFoundException("Không tìm thấy đơn hàng.");
+
+        // Verify ownership
+        if (order.Customer?.UserId != userId)
+            throw new UnauthorizedAccessException("Bạn không có quyền hủy đơn hàng này.");
+
+        if (order.Status != "pending")
+            throw new InvalidOperationException("Chỉ có thể hủy đơn hàng đang ở trạng thái chờ xử lý.");
+
+        order.Status = "cancelled";
+
+        // Restore stock if order had deducted it
+        // (In current flow, stock is deducted on payment, not on order creation,
+        //  so no stock restoration needed for pending orders)
+
+        await _db.SaveChangesAsync();
+        return await GetByIdAsync(orderId);
     }
 
     private static bool IsValidTransition(string from, string to)
