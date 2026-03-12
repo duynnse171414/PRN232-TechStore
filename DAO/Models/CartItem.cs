@@ -13,7 +13,7 @@ public partial class CartItem
 
     public long ProductId { get; set; }
 
-    public int? Quantity { get; set; }
+    public int Quantity { get; set; }
 
     public virtual Cart Cart { get; set; }
 

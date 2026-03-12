@@ -106,6 +106,37 @@ public class CustomerService : ICustomerService
         return MapAddressToDto(address);
     }
 
+    public async Task<AddressDto> UpdateAddressAsync(long customerId, long addressId, UpdateAddressDto dto)
+    {
+        var address = await _db.Addresses
+            .FirstOrDefaultAsync(a => a.Id == addressId && a.CustomerId == customerId)
+            ?? throw new KeyNotFoundException("Địa chỉ không tồn tại.");
+
+        address.AddressLine = dto.AddressLine ?? address.AddressLine;
+        address.City = dto.City ?? address.City;
+        address.District = dto.District ?? address.District;
+        address.Ward = dto.Ward ?? address.Ward;
+
+        await _db.SaveChangesAsync();
+        return MapAddressToDto(address);
+    }
+
+    public async Task<bool> SetDefaultAddressAsync(long customerId, long addressId)
+    {
+        var addresses = await _db.Addresses
+            .Where(a => a.CustomerId == customerId)
+            .ToListAsync();
+
+        var target = addresses.FirstOrDefault(a => a.Id == addressId);
+        if (target == null) return false;
+
+        addresses.ForEach(a => a.IsDefault = false);
+        target.IsDefault = true;
+
+        await _db.SaveChangesAsync();
+        return true;
+    }
+
     public async Task<bool> DeleteAddressAsync(long customerId, long addressId)
     {
         var address = await _db.Addresses

@@ -19,7 +19,7 @@ public partial class Address
 
     public string Ward { get; set; }
 
-    public bool? IsDefault { get; set; }
+    public bool IsDefault { get; set; }
 
     public virtual Customer Customer { get; set; }
 

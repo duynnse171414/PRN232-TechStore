@@ -13,4 +13,5 @@ public interface IOrderService
     Task<List<OrderResponseDto>> GetByCustomerAsync(long customerId);
     Task<List<OrderResponseDto>> GetAllAsync(string status = null);
     Task<OrderResponseDto> UpdateStatusAsync(long id, UpdateOrderStatusDto dto);
+    Task<OrderResponseDto> CancelOrderAsync(long orderId, long userId);
 }

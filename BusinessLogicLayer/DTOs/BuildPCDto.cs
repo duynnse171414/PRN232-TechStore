@@ -33,6 +33,12 @@ public class BuildResponseDto
     public List<BuildItemResponseDto> Items { get; set; } = new();
 }
 
+public class UpdateBuildDto
+{
+    public string Name { get; set; }
+    public List<BuildItemDto> Items { get; set; } = new();
+}
+
 public class BuildItemResponseDto
 {
     public long ComponentTypeId { get; set; }

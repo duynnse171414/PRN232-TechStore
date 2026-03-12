@@ -11,7 +11,7 @@ public partial class Promotion
 
     public string Name { get; set; }
 
-    public int? DiscountPercent { get; set; }
+    public int DiscountPercent { get; set; }
 
     public DateTime? StartDate { get; set; }
 

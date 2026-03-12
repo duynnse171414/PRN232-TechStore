@@ -60,6 +60,31 @@ public class CustomersController : ControllerBase
         return Ok(address);
     }
 
+    /// <summary>Cập nhật địa chỉ</summary>
+    [HttpPut("me/addresses/{addressId}")]
+    public async Task<IActionResult> UpdateAddress(long addressId, [FromBody] UpdateAddressDto dto)
+    {
+        try
+        {
+            var profile = await _customerService.GetOrCreateCustomerByUserIdAsync(GetUserId());
+            var address = await _customerService.UpdateAddressAsync(profile.Id, addressId, dto);
+            return Ok(address);
+        }
+        catch (KeyNotFoundException)
+        {
+            return NotFound();
+        }
+    }
+
+    /// <summary>Đặt địa chỉ mặc định</summary>
+    [HttpPatch("me/addresses/{addressId}/set-default")]
+    public async Task<IActionResult> SetDefaultAddress(long addressId)
+    {
+        var profile = await _customerService.GetOrCreateCustomerByUserIdAsync(GetUserId());
+        var result = await _customerService.SetDefaultAddressAsync(profile.Id, addressId);
+        return result ? Ok(new { message = "Đã đặt địa chỉ mặc định." }) : NotFound();
+    }
+
     /// <summary>Xóa địa chỉ</summary>
     [HttpDelete("me/addresses/{addressId}")]
     public async Task<IActionResult> DeleteAddress(long addressId)

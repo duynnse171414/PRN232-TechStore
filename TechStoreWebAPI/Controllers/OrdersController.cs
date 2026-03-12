@@ -186,6 +186,30 @@ public class OrdersController : ControllerBase
         return ApiOk(orders);
     }
 
+    /// <summary>Hủy đơn hàng (chỉ khi đang pending)</summary>
+    [HttpPost("{id}/cancel")]
+    [Authorize]
+    public async Task<IActionResult> CancelOrder(long id)
+    {
+        try
+        {
+            var order = await _orderService.CancelOrderAsync(id, TryGetUserId()!.Value);
+            return ApiOk(order, "Đã hủy đơn hàng.");
+        }
+        catch (KeyNotFoundException)
+        {
+            return ApiNotFound("Không tìm thấy đơn hàng.");
+        }
+        catch (UnauthorizedAccessException ex)
+        {
+            return new ObjectResult(new { success = false, message = ex.Message }) { StatusCode = 403 };
+        }
+        catch (InvalidOperationException ex)
+        {
+            return ApiBadRequest(ex.Message);
+        }
+    }
+
     /// <summary>F13 – Danh sách đơn hàng (Admin/Staff)</summary>
     [HttpGet]
     [Authorize(Roles = "admin,staff")]

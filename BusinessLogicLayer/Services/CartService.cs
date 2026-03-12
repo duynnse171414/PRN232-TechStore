@@ -23,7 +23,7 @@ public class CartService : ICartService
 
         var existing = cart.CartItems.FirstOrDefault(ci => ci.ProductId == dto.ProductId);
         if (existing != null)
-            existing.Quantity = (existing.Quantity ?? 1) + dto.Quantity;
+            existing.Quantity = existing.Quantity + dto.Quantity;
         else
             cart.CartItems.Add(new CartItem
             {
@@ -107,8 +107,8 @@ public class CartService : ICartService
             ProductPrice = ci.Product?.Price,
             ImageUrl = ci.Product?.ProductImages?.FirstOrDefault()?.ImageUrl,
             Quantity = ci.Quantity,
-            Subtotal = (ci.Product?.Price ?? 0) * (ci.Quantity ?? 1)
+            Subtotal = (ci.Product?.Price ?? 0) * ci.Quantity
         }).ToList(),
-        Total = cart.CartItems.Sum(ci => (ci.Product?.Price ?? 0) * (ci.Quantity ?? 1))
+        Total = cart.CartItems.Sum(ci => (ci.Product?.Price ?? 0) * ci.Quantity)
     };
 }

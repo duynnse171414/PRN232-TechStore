@@ -7,8 +7,8 @@ public class ProductDto
     public string Sku { get; set; }
     public string Description { get; set; }
     public string Warranty { get; set; }
-    public decimal? Price { get; set; }
-    public int? Stock { get; set; }
+    public decimal Price { get; set; }
+    public int Stock { get; set; }
     public long? BrandId { get; set; }
     public string BrandName { get; set; }
     public long? CategoryId { get; set; }
@@ -30,7 +30,7 @@ public class CreateProductDto
     public string Sku { get; set; }
     public string Description { get; set; }
     public string Warranty { get; set; }
-    public decimal? Price { get; set; }
+    public decimal Price { get; set; }
     public int? Stock { get; set; }
     public long? BrandId { get; set; }
     public long? CategoryId { get; set; }
