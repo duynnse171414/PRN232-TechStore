@@ -32,6 +32,8 @@ public class CheckoutFromCartRequest
 {
     public long? AddressId { get; set; }
     public string Notes { get; set; }
+    /// <summary>Phương thức thanh toán: "cod", "vnpay", "card", "transfer"</summary>
+    public string PaymentMethod { get; set; }
 }
 
 public class OrderItemDto
