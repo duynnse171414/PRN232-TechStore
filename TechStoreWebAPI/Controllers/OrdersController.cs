@@ -12,11 +12,13 @@ public class OrdersController : ControllerBase
 {
     private readonly IOrderService _orderService;
     private readonly ICustomerService _customerService;
+    private readonly IVnPayService _vnPayService;
 
-    public OrdersController(IOrderService orderService, ICustomerService customerService)
+    public OrdersController(IOrderService orderService, ICustomerService customerService, IVnPayService vnPayService)
     {
         _orderService = orderService;
         _customerService = customerService;
+        _vnPayService = vnPayService;
     }
 
     private long? TryGetUserId()
@@ -79,6 +81,18 @@ public class OrdersController : ControllerBase
                 Items = request.Items
             });
 
+            // Nếu chọn VNPay → tạo URL thanh toán
+            if (string.Equals(request.PaymentMethod, "vnpay", StringComparison.OrdinalIgnoreCase))
+            {
+                var ip = HttpContext.Connection.RemoteIpAddress?.MapToIPv4().ToString() ?? "127.0.0.1";
+                var paymentUrl = _vnPayService.CreatePaymentUrl(
+                    order.Id, order.TotalAmount ?? 0,
+                    $"Thanh toan don hang #{order.Id}", ip);
+
+                return ApiCreated(new { order, paymentUrl },
+                    "Tạo đơn hàng thành công, vui lòng thanh toán qua VNPay.");
+            }
+
             return ApiCreated(order, "Tạo đơn hàng thành công.");
         }
         catch (InvalidOperationException ex)
@@ -98,6 +112,19 @@ public class OrdersController : ControllerBase
         try
         {
             var order = await _orderService.CreateOrderFromCartAsync(TryGetUserId()!.Value, request);
+
+            // Nếu chọn VNPay → tạo URL thanh toán và trả về cùng response
+            if (string.Equals(request.PaymentMethod, "vnpay", StringComparison.OrdinalIgnoreCase))
+            {
+                var ip = HttpContext.Connection.RemoteIpAddress?.MapToIPv4().ToString() ?? "127.0.0.1";
+                var paymentUrl = _vnPayService.CreatePaymentUrl(
+                    order.Id, order.TotalAmount ?? 0,
+                    $"Thanh toan don hang #{order.Id}", ip);
+
+                return ApiCreated(new { order, paymentUrl },
+                    "Checkout thành công, vui lòng thanh toán qua VNPay.");
+            }
+
             return ApiCreated(order, "Checkout thành công, đơn hàng đang chờ thanh toán.");
         }
         catch (InvalidOperationException ex)

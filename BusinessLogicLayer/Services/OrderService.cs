@@ -94,7 +94,7 @@ public class OrderService : IOrderService
             CustomerId = customer.Id,
             AddressId = request.AddressId,
             Notes = request.Notes,
-            PaymentMethod = "checkout",
+            PaymentMethod = string.IsNullOrWhiteSpace(request.PaymentMethod) ? "checkout" : request.PaymentMethod,
             Items = items
         });
 
