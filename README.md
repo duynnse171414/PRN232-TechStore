@@ -46,7 +46,3 @@ Hoặc
 }
 ```
 
-## Ghi chú
-
-- Script `TechStoreDB.sql` là idempotent, có thể chạy lại nhiều lần.
-- Seed products/images/specs đã có sẵn để FE test Home / Products / ProductDetail / Cart / Checkout / BuildPC.
