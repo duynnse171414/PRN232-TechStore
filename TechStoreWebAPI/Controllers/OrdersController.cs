@@ -24,7 +24,8 @@ public class OrdersController : ControllerBase
     private long? TryGetUserId()
     {
         var raw = User.FindFirstValue(ClaimTypes.NameIdentifier);
-        return raw == null ? null : long.Parse(raw);
+        if (string.IsNullOrWhiteSpace(raw)) return null;
+        return long.TryParse(raw, out var userId) ? userId : null;
     }
 
     private static IActionResult ApiOk(object data, string message = "Success")
@@ -50,6 +51,9 @@ public class OrdersController : ControllerBase
     {
         try
         {
+            if (request == null)
+                return ApiBadRequest("Dữ liệu đặt hàng không hợp lệ.");
+
             long customerId;
 
             var userId = TryGetUserId();
@@ -63,6 +67,9 @@ public class OrdersController : ControllerBase
                 if (string.IsNullOrWhiteSpace(request.GuestName))
                     return ApiBadRequest("GuestName là bắt buộc khi đặt hàng không đăng nhập.");
 
+                if (string.IsNullOrWhiteSpace(request.GuestPhone))
+                    return ApiBadRequest("GuestPhone là bắt buộc khi đặt hàng không đăng nhập.");
+
                 var guest = await _customerService.CreateGuestCustomerAsync(new CreateGuestCustomerDto
                 {
                     Name = request.GuestName,
@@ -71,6 +78,9 @@ public class OrdersController : ControllerBase
                 });
                 customerId = guest.Id;
             }
+
+            if (request.Items == null || request.Items.Count == 0)
+                return ApiBadRequest("Đơn hàng phải có ít nhất 1 sản phẩm.");
 
             var order = await _orderService.CreateOrderAsync(new CreateOrderDto
             {
@@ -113,7 +123,14 @@ public class OrdersController : ControllerBase
     {
         try
         {
-            var order = await _orderService.CreateOrderFromCartAsync(TryGetUserId()!.Value, request);
+            var userId = TryGetUserId();
+            if (!userId.HasValue)
+                return ApiBadRequest("Không xác định được người dùng đăng nhập.");
+
+            if (request == null)
+                return ApiBadRequest("Dữ liệu checkout không hợp lệ.");
+
+            var order = await _orderService.CreateOrderFromCartAsync(userId.Value, request);
 
             // Nếu chọn VNPay → tạo URL thanh toán và trả về cùng response
             if (string.Equals(request.PaymentMethod, "vnpay", StringComparison.OrdinalIgnoreCase))
@@ -207,8 +224,11 @@ public class OrdersController : ControllerBase
     [Authorize]
     public async Task<IActionResult> GetMyOrders()
     {
-        var userId = TryGetUserId()!.Value;
-        var profile = await _customerService.GetProfileByUserIdAsync(userId);
+        var userId = TryGetUserId();
+        if (!userId.HasValue)
+            return ApiBadRequest("Không xác định được người dùng đăng nhập.");
+
+        var profile = await _customerService.GetProfileByUserIdAsync(userId.Value);
         if (profile == null) return ApiOk(new List<OrderResponseDto>());
 
         var orders = await _orderService.GetByCustomerAsync(profile.Id);
@@ -222,7 +242,11 @@ public class OrdersController : ControllerBase
     {
         try
         {
-            var order = await _orderService.CancelOrderAsync(id, TryGetUserId()!.Value);
+            var userId = TryGetUserId();
+            if (!userId.HasValue)
+                return ApiBadRequest("Không xác định được người dùng đăng nhập.");
+
+            var order = await _orderService.CancelOrderAsync(id, userId.Value);
             return ApiOk(order, "Đã hủy đơn hàng.");
         }
         catch (KeyNotFoundException)
