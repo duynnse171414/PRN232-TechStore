@@ -842,50 +842,50 @@ DECLARE @BrandCaseId bigint = (SELECT TOP 1 id FROM dbo.brand WHERE [name] = N'C
 /* Category */
 IF NOT EXISTS (SELECT 1 FROM dbo.category WHERE [name] = N'CPU')
     INSERT INTO dbo.category ([name]) VALUES (N'CPU');
-IF NOT EXISTS (SELECT 1 FROM dbo.category WHERE [name] = N'Card đồ họa')
-    INSERT INTO dbo.category ([name]) VALUES (N'Card đồ họa');
+IF NOT EXISTS (SELECT 1 FROM dbo.category WHERE [name] = N'GPU')
+    INSERT INTO dbo.category ([name]) VALUES (N'GPU');
 IF NOT EXISTS (SELECT 1 FROM dbo.category WHERE [name] = N'RAM')
     INSERT INTO dbo.category ([name]) VALUES (N'RAM');
 IF NOT EXISTS (SELECT 1 FROM dbo.category WHERE [name] = N'SSD')
     INSERT INTO dbo.category ([name]) VALUES (N'SSD');
 IF NOT EXISTS (SELECT 1 FROM dbo.category WHERE [name] = N'Mainboard')
     INSERT INTO dbo.category ([name]) VALUES (N'Mainboard');
-IF NOT EXISTS (SELECT 1 FROM dbo.category WHERE [name] = N'Nguồn (PSU)')
-    INSERT INTO dbo.category ([name]) VALUES (N'Nguồn (PSU)');
-IF NOT EXISTS (SELECT 1 FROM dbo.category WHERE [name] = N'Vỏ case')
-    INSERT INTO dbo.category ([name]) VALUES (N'Vỏ case');
+IF NOT EXISTS (SELECT 1 FROM dbo.category WHERE [name] = N'PSU')
+    INSERT INTO dbo.category ([name]) VALUES (N'PSU');
+IF NOT EXISTS (SELECT 1 FROM dbo.category WHERE [name] = N'Case')
+    INSERT INTO dbo.category ([name]) VALUES (N'Case');
 
 DECLARE @CatCpuId bigint = (SELECT TOP 1 id FROM dbo.category WHERE [name] = N'CPU');
-DECLARE @CatGpuId bigint = (SELECT TOP 1 id FROM dbo.category WHERE [name] = N'Card đồ họa');
+DECLARE @CatGpuId bigint = (SELECT TOP 1 id FROM dbo.category WHERE [name] = N'GPU');
 DECLARE @CatRamId bigint = (SELECT TOP 1 id FROM dbo.category WHERE [name] = N'RAM');
 DECLARE @CatSsdId bigint = (SELECT TOP 1 id FROM dbo.category WHERE [name] = N'SSD');
 DECLARE @CatMainboardId bigint = (SELECT TOP 1 id FROM dbo.category WHERE [name] = N'Mainboard');
-DECLARE @CatPsuId bigint = (SELECT TOP 1 id FROM dbo.category WHERE [name] = N'Nguồn (PSU)');
-DECLARE @CatCaseId bigint = (SELECT TOP 1 id FROM dbo.category WHERE [name] = N'Vỏ case');
+DECLARE @CatPsuId bigint = (SELECT TOP 1 id FROM dbo.category WHERE [name] = N'PSU');
+DECLARE @CatCaseId bigint = (SELECT TOP 1 id FROM dbo.category WHERE [name] = N'Case');
 
 /* PC component types (build PC 7 thanh phan bat buoc) */
 IF NOT EXISTS (SELECT 1 FROM dbo.pc_component_type WHERE [name] = N'CPU')
     INSERT INTO dbo.pc_component_type ([name], [is_required], [sort_order]) VALUES (N'CPU', 1, 1);
-IF NOT EXISTS (SELECT 1 FROM dbo.pc_component_type WHERE [name] = N'Card đồ họa')
-    INSERT INTO dbo.pc_component_type ([name], [is_required], [sort_order]) VALUES (N'Card đồ họa', 1, 2);
+IF NOT EXISTS (SELECT 1 FROM dbo.pc_component_type WHERE [name] = N'GPU')
+    INSERT INTO dbo.pc_component_type ([name], [is_required], [sort_order]) VALUES (N'GPU', 1, 2);
 IF NOT EXISTS (SELECT 1 FROM dbo.pc_component_type WHERE [name] = N'RAM')
     INSERT INTO dbo.pc_component_type ([name], [is_required], [sort_order]) VALUES (N'RAM', 1, 3);
 IF NOT EXISTS (SELECT 1 FROM dbo.pc_component_type WHERE [name] = N'SSD')
     INSERT INTO dbo.pc_component_type ([name], [is_required], [sort_order]) VALUES (N'SSD', 1, 4);
 IF NOT EXISTS (SELECT 1 FROM dbo.pc_component_type WHERE [name] = N'Mainboard')
     INSERT INTO dbo.pc_component_type ([name], [is_required], [sort_order]) VALUES (N'Mainboard', 1, 5);
-IF NOT EXISTS (SELECT 1 FROM dbo.pc_component_type WHERE [name] = N'Nguồn (PSU)')
-    INSERT INTO dbo.pc_component_type ([name], [is_required], [sort_order]) VALUES (N'Nguồn (PSU)', 1, 6);
-IF NOT EXISTS (SELECT 1 FROM dbo.pc_component_type WHERE [name] = N'Vỏ case')
-    INSERT INTO dbo.pc_component_type ([name], [is_required], [sort_order]) VALUES (N'Vỏ case', 1, 7);
+IF NOT EXISTS (SELECT 1 FROM dbo.pc_component_type WHERE [name] = N'PSU')
+    INSERT INTO dbo.pc_component_type ([name], [is_required], [sort_order]) VALUES (N'PSU', 1, 6);
+IF NOT EXISTS (SELECT 1 FROM dbo.pc_component_type WHERE [name] = N'Case')
+    INSERT INTO dbo.pc_component_type ([name], [is_required], [sort_order]) VALUES (N'Case', 1, 7);
 
 DECLARE @TypeCpuId bigint = (SELECT TOP 1 id FROM dbo.pc_component_type WHERE [name] = N'CPU');
-DECLARE @TypeGpuId bigint = (SELECT TOP 1 id FROM dbo.pc_component_type WHERE [name] = N'Card đồ họa');
+DECLARE @TypeGpuId bigint = (SELECT TOP 1 id FROM dbo.pc_component_type WHERE [name] = N'GPU');
 DECLARE @TypeRamId bigint = (SELECT TOP 1 id FROM dbo.pc_component_type WHERE [name] = N'RAM');
 DECLARE @TypeSsdId bigint = (SELECT TOP 1 id FROM dbo.pc_component_type WHERE [name] = N'SSD');
 DECLARE @TypeMainboardId bigint = (SELECT TOP 1 id FROM dbo.pc_component_type WHERE [name] = N'Mainboard');
-DECLARE @TypePsuId bigint = (SELECT TOP 1 id FROM dbo.pc_component_type WHERE [name] = N'Nguồn (PSU)');
-DECLARE @TypeCaseId bigint = (SELECT TOP 1 id FROM dbo.pc_component_type WHERE [name] = N'Vỏ case');
+DECLARE @TypePsuId bigint = (SELECT TOP 1 id FROM dbo.pc_component_type WHERE [name] = N'PSU');
+DECLARE @TypeCaseId bigint = (SELECT TOP 1 id FROM dbo.pc_component_type WHERE [name] = N'Case');
 
 /* 6) Products (7 san pham theo 7 component) */
 DECLARE @SkuCpu nvarchar(100) = N'CPU-INTEL-01';

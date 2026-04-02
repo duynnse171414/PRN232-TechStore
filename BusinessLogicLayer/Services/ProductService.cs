@@ -104,7 +104,16 @@ public class ProductService : IProductService
         await _db.SaveChangesAsync();
         return true;
     }
-
+    public async Task<List<ProductDto>> GetAllAsync()
+    {
+        return await _db.Products
+            .Include(p => p.Brand)
+            .Include(p => p.Category)
+            .Include(p => p.ProductImages)
+            .OrderByDescending(p => p.CreatedAt)
+            .Select(p => MapToDto(p))
+            .ToListAsync();
+    }
     private static ProductDto MapToDto(Product p) => new()
     {
         Id = p.Id,

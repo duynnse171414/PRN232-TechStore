@@ -55,4 +55,12 @@ public class ProductsController : ControllerBase
         var deleted = await _productService.DeleteAsync(id);
         return deleted ? NoContent() : NotFound();
     }
+    /// <summary>Admin/Staff – Lấy toàn bộ sản phẩm (không phân trang)</summary>
+    [HttpGet("all")]
+    [Authorize(Roles = "admin,staff")]
+    public async Task<IActionResult> GetAll()
+    {
+        var items = await _productService.GetAllAsync();
+        return Ok(items);
+    }
 }
