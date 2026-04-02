@@ -9,9 +9,9 @@ public class CreateOrderDto
     public long CustomerId { get; set; }
     public long? AddressId { get; set; }
     public long? VoucherId { get; set; }
-    public string VoucherCode { get; set; }
-    public string Notes { get; set; }
-    public string PaymentMethod { get; set; }
+    public string? VoucherCode { get; set; }
+    public string? Notes { get; set; }
+    public string? PaymentMethod { get; set; }
     public List<OrderItemDto> Items { get; set; } = new();
 }
 
@@ -19,15 +19,15 @@ public class CreateOrderDto
 public class PlaceOrderRequest
 {
     // Dành cho guest (bỏ trống nếu đã đăng nhập)
-    public string GuestName { get; set; }
-    public string GuestEmail { get; set; }
-    public string GuestPhone { get; set; }
+    public string? GuestName { get; set; }
+    public string? GuestEmail { get; set; }
+    public string? GuestPhone { get; set; }
 
     public long? AddressId { get; set; }
     public long? VoucherId { get; set; }
-    public string VoucherCode { get; set; }
-    public string Notes { get; set; }
-    public string PaymentMethod { get; set; }
+    public string? VoucherCode { get; set; }
+    public string? Notes { get; set; }
+    public string? PaymentMethod { get; set; }
     public List<OrderItemDto> Items { get; set; } = new();
 }
 
@@ -36,10 +36,10 @@ public class CheckoutFromCartRequest
 {
     public long? AddressId { get; set; }
     public long? VoucherId { get; set; }
-    public string VoucherCode { get; set; }
-    public string Notes { get; set; }
+    public string? VoucherCode { get; set; }
+    public string? Notes { get; set; }
     /// <summary>Phương thức thanh toán: "cod", "vnpay", "card", "transfer"</summary>
-    public string PaymentMethod { get; set; }
+    public string? PaymentMethod { get; set; }
 }
 
 public class OrderItemDto
@@ -52,15 +52,15 @@ public class OrderResponseDto
 {
     public long Id { get; set; }
     public long CustomerId { get; set; }
-    public string CustomerName { get; set; }
-    public string Status { get; set; }
+    public string? CustomerName { get; set; }
+    public string? Status { get; set; }
     public long? VoucherId { get; set; }
-    public string VoucherCode { get; set; }
+    public string? VoucherCode { get; set; }
     public decimal? DiscountAmount { get; set; }
     public decimal? TotalAmount { get; set; }
     public decimal? ShippingFee { get; set; }
-    public string Notes { get; set; }
-    public string TrackingNumber { get; set; }
+    public string? Notes { get; set; }
+    public string? TrackingNumber { get; set; }
     public DateTime? CreatedAt { get; set; }
     public List<OrderItemResponseDto> Items { get; set; } = new();
 }
