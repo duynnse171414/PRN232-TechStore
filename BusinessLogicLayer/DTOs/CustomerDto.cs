@@ -9,6 +9,7 @@ public class CustomerProfileDto
     public string Email { get; set; }
     public string Phone { get; set; }
     public DateTime? CreatedAt { get; set; }
+    public List<AddressDto>? Addresses { get; set; }
 }
 
 public class UpdateProfileDto

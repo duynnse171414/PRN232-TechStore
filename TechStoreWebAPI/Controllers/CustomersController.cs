@@ -48,7 +48,20 @@ public class CustomersController : ControllerBase
     {
         var profile = await _customerService.GetOrCreateCustomerByUserIdAsync(GetUserId());
         var addresses = await _customerService.GetAddressesAsync(profile.Id);
-        return Ok(addresses);
+        profile.Addresses = addresses;
+        return Ok(profile);
+    }
+
+    /// <summary>Lấy chi tiết 1 địa chỉ của user đang đăng nhập</summary>
+    [HttpGet("me/addresses/{addressId}")]
+    public async Task<IActionResult> GetMyAddressById(long addressId)
+    {
+        var profile = await _customerService.GetOrCreateCustomerByUserIdAsync(GetUserId());
+        var address = await _customerService.GetAddressAsync(profile.Id, addressId);
+        if (address == null) return NotFound();
+
+        profile.Addresses = new List<AddressDto> { address };
+        return Ok(profile);
     }
 
     /// <summary>F09 – Thêm địa chỉ mới</summary>

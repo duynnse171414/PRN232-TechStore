@@ -14,20 +14,33 @@ public class CustomerService : ICustomerService
     public async Task<CustomerProfileDto> GetProfileAsync(long customerId)
     {
         var c = await _db.Customers.FindAsync(customerId);
-        return c == null ? null : MapToDto(c);
+        if (c == null) return null;
+
+        var profile = MapToDto(c);
+        profile.Addresses = await GetAddressesAsync(c.Id);
+        return profile;
     }
 
     public async Task<CustomerProfileDto> GetProfileByUserIdAsync(long userId)
     {
         var c = await _db.Customers.FirstOrDefaultAsync(x => x.UserId == userId);
-        return c == null ? null : MapToDto(c);
+        if (c == null) return null;
+
+        var profile = MapToDto(c);
+        profile.Addresses = await GetAddressesAsync(c.Id);
+        return profile;
     }
 
     public async Task<CustomerProfileDto> GetOrCreateCustomerByUserIdAsync(
         long userId, string name = null, string email = null, string phone = null)
     {
         var existing = await _db.Customers.FirstOrDefaultAsync(c => c.UserId == userId);
-        if (existing != null) return MapToDto(existing);
+        if (existing != null)
+        {
+            var existingProfile = MapToDto(existing);
+            existingProfile.Addresses = await GetAddressesAsync(existing.Id);
+            return existingProfile;
+        }
 
         var user = await _db.Users.FindAsync(userId);
         var customer = new Customer
@@ -41,7 +54,9 @@ public class CustomerService : ICustomerService
 
         _db.Customers.Add(customer);
         await _db.SaveChangesAsync();
-        return MapToDto(customer);
+        var profile = MapToDto(customer);
+        profile.Addresses = await GetAddressesAsync(customer.Id);
+        return profile;
     }
 
     public async Task<CustomerProfileDto> CreateGuestCustomerAsync(CreateGuestCustomerDto dto)
@@ -57,7 +72,9 @@ public class CustomerService : ICustomerService
 
         _db.Customers.Add(customer);
         await _db.SaveChangesAsync();
-        return MapToDto(customer);
+        var profile = MapToDto(customer);
+        profile.Addresses = await GetAddressesAsync(customer.Id);
+        return profile;
     }
 
     public async Task<CustomerProfileDto> UpdateProfileAsync(long customerId, UpdateProfileDto dto)
@@ -69,7 +86,9 @@ public class CustomerService : ICustomerService
         c.Email = dto.Email;
         c.Phone = dto.Phone;
         await _db.SaveChangesAsync();
-        return MapToDto(c);
+        var profile = MapToDto(c);
+        profile.Addresses = await GetAddressesAsync(c.Id);
+        return profile;
     }
 
     public async Task<List<AddressDto>> GetAddressesAsync(long customerId)
@@ -79,6 +98,14 @@ public class CustomerService : ICustomerService
             .ToListAsync();
 
         return addresses.Select(MapAddressToDto).ToList();
+    }
+
+    public async Task<AddressDto?> GetAddressAsync(long customerId, long addressId)
+    {
+        var address = await _db.Addresses
+            .FirstOrDefaultAsync(a => a.CustomerId == customerId && a.Id == addressId);
+
+        return address == null ? null : MapAddressToDto(address);
     }
 
     public async Task<AddressDto> AddAddressAsync(long customerId, CreateAddressDto dto)
@@ -155,7 +182,26 @@ public class CustomerService : ICustomerService
             .OrderByDescending(c => c.CreatedAt)
             .ToListAsync();
 
-        return customers.Select(MapToDto).ToList();
+        var profiles = customers.Select(MapToDto).ToList();
+        var customerIds = customers.Select(c => c.Id).ToList();
+        var addresses = await _db.Addresses
+            .Where(a => customerIds.Contains(a.CustomerId))
+            .ToListAsync();
+
+        var addressLookup = addresses
+            .GroupBy(a => a.CustomerId)
+            .ToDictionary(
+                g => g.Key,
+                g => g.Select(MapAddressToDto).ToList());
+
+        foreach (var profile in profiles)
+        {
+            profile.Addresses = addressLookup.TryGetValue(profile.Id, out var profileAddresses)
+                ? profileAddresses
+                : new List<AddressDto>();
+        }
+
+        return profiles;
     }
 
     private static CustomerProfileDto MapToDto(Customer c) => new()
