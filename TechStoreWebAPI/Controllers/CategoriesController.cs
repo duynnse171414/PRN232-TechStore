@@ -25,8 +25,14 @@ public class CategoriesController : ControllerBase
     public async Task<IActionResult> GetAll()
     {
         var categories = await _db.Categories
-            .Select(c => new { c.Id, c.Name })
+            .Select(c => new
+            {
+                c.Id,
+                c.Name,
+                TotalProducts = c.Products.Count()
+            })
             .ToListAsync();
+
         return Ok(categories);
     }
 
