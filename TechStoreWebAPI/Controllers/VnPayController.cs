@@ -47,16 +47,38 @@ public class VnPayController : ControllerBase
 
     /// <summary>
     /// VNPay redirect user về đây sau khi thanh toán (browser redirect).
-    /// Chỉ hiển thị kết quả, KHÔNG cập nhật DB (IPN làm việc đó).
+    /// Ưu tiên IPN để cập nhật DB, nhưng vẫn fallback cập nhật DB tại đây
+    /// để tránh trường hợp môi trường local/public callback lỗi.
     /// </summary>
     [HttpGet("payment-return")]
     [AllowAnonymous]
-    public IActionResult PaymentReturn()
+    public async Task<IActionResult> PaymentReturn()
     {
         var result = _vnPayService.ProcessCallback(Request.Query);
 
         if (!result.IsValid)
             return BadRequest(new { success = false, message = "Chữ ký không hợp lệ." });
+
+        try
+        {
+            var order = await _orderService.GetByIdAsync(result.OrderId);
+            if (order != null && order.Status is not ("paid" or "shipping" or "completed"))
+            {
+                if (result.IsSuccess)
+                {
+                    await _orderService.ConfirmPaymentAsync(result.OrderId);
+                }
+                else
+                {
+                    await _orderService.FailPaymentAsync(result.OrderId, $"VNPay return error: {result.ResponseCode}");
+                }
+            }
+        }
+        catch
+        {
+            // Không chặn response redirect nếu cập nhật DB gặp lỗi tạm thời.
+            // IPN sẽ retry/cập nhật lại khi có thể.
+        }
 
         return Ok(new
         {

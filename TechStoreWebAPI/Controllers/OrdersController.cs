@@ -76,6 +76,8 @@ public class OrdersController : ControllerBase
             {
                 CustomerId = customerId,
                 AddressId = request.AddressId,
+                VoucherId = request.VoucherId,
+                VoucherCode = request.VoucherCode,
                 Notes = request.Notes,
                 PaymentMethod = request.PaymentMethod,
                 Items = request.Items

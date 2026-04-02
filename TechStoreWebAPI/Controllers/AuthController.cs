@@ -61,4 +61,19 @@ public class AuthController : ControllerBase
             return BadRequest(new { message = ex.Message });
         }
     }
+
+    [HttpPost("staff")]
+    [Authorize(Roles = "admin")]
+    public async Task<IActionResult> CreateStaffAccount([FromBody] CreateStaffAccountDto dto)
+    {
+        try
+        {
+            var user = await _authService.CreateStaffAccountAsync(dto);
+            return Ok(user);
+        }
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
+    }
 }

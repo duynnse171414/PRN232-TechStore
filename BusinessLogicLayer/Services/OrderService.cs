@@ -36,13 +36,50 @@ public class OrderService : IOrderService
                 throw new InvalidOperationException($"Sản phẩm '{p.Name}' không đủ tồn kho.");
         }
 
+        var subTotal = dto.Items.Sum(i => products[i.ProductId].Price * i.Quantity);
+        var shippingFee = 0m;
+
+        Voucher? voucher = null;
+        if (dto.VoucherId.HasValue || !string.IsNullOrWhiteSpace(dto.VoucherCode))
+        {
+            voucher = dto.VoucherId.HasValue
+                ? await _db.Vouchers.FirstOrDefaultAsync(v => v.Id == dto.VoucherId.Value)
+                : await _db.Vouchers.FirstOrDefaultAsync(v => v.Code == dto.VoucherCode);
+
+            if (voucher == null)
+                throw new InvalidOperationException("Voucher không tồn tại.");
+
+            var now = DateTime.Now;
+            var isValidTime = (voucher.StartDate == null || voucher.StartDate <= now)
+                              && (voucher.EndDate == null || voucher.EndDate >= now);
+            if (!voucher.IsActive || !isValidTime)
+                throw new InvalidOperationException("Voucher không còn hiệu lực.");
+
+            if (voucher.MinOrderAmount.HasValue && subTotal < voucher.MinOrderAmount.Value)
+                throw new InvalidOperationException("Đơn hàng chưa đạt giá trị tối thiểu để áp dụng voucher.");
+        }
+
+        var discountAmount = 0m;
+        if (voucher?.DiscountPercent is > 0)
+        {
+            discountAmount = subTotal * voucher.DiscountPercent.Value / 100m;
+            if (voucher.MaxDiscount.HasValue && discountAmount > voucher.MaxDiscount.Value)
+                discountAmount = voucher.MaxDiscount.Value;
+        }
+
+        var finalTotal = subTotal - discountAmount + shippingFee;
+        if (finalTotal < 0) finalTotal = 0;
+
         var order = new Order
         {
             CustomerId = dto.CustomerId,
             AddressId = dto.AddressId,
+            VoucherId = voucher?.Id,
             Notes = dto.Notes,
             Status = "pending",
-            ShippingFee = 0,
+            DiscountAmount = discountAmount,
+            ShippingFee = shippingFee,
+            TotalAmount = finalTotal,
             CreatedAt = DateTime.Now,
             OrderItems = dto.Items.Select(i => new OrderItem
             {
@@ -51,8 +88,6 @@ public class OrderService : IOrderService
                 Price = products[i.ProductId].Price
             }).ToList()
         };
-
-        order.TotalAmount = order.OrderItems.Sum(oi => oi.Price * oi.Quantity);
 
         _db.Orders.Add(order);
 
@@ -93,6 +128,8 @@ public class OrderService : IOrderService
         {
             CustomerId = customer.Id,
             AddressId = request.AddressId,
+            VoucherId = request.VoucherId,
+            VoucherCode = request.VoucherCode,
             Notes = request.Notes,
             PaymentMethod = string.IsNullOrWhiteSpace(request.PaymentMethod) ? "checkout" : request.PaymentMethod,
             Items = items
@@ -225,6 +262,7 @@ public class OrderService : IOrderService
     {
         var order = await _db.Orders
             .Include(o => o.Customer)
+            .Include(o => o.Voucher)
             .Include(o => o.OrderItems).ThenInclude(oi => oi.Product)
             .FirstOrDefaultAsync(o => o.Id == id);
 
@@ -235,6 +273,7 @@ public class OrderService : IOrderService
     {
         var orders = await _db.Orders
             .Include(o => o.Customer)
+            .Include(o => o.Voucher)
             .Include(o => o.OrderItems).ThenInclude(oi => oi.Product)
             .Where(o => o.CustomerId == customerId)
             .OrderByDescending(o => o.CreatedAt)
@@ -247,6 +286,7 @@ public class OrderService : IOrderService
     {
         var query = _db.Orders
             .Include(o => o.Customer)
+            .Include(o => o.Voucher)
             .Include(o => o.OrderItems).ThenInclude(oi => oi.Product)
             .AsQueryable();
 
@@ -324,6 +364,9 @@ public class OrderService : IOrderService
         CustomerId = o.CustomerId,
         CustomerName = o.Customer?.Name,
         Status = o.Status,
+        VoucherId = o.VoucherId,
+        VoucherCode = o.Voucher?.Code,
+        DiscountAmount = o.DiscountAmount,
         TotalAmount = o.TotalAmount,
         ShippingFee = o.ShippingFee,
         Notes = o.Notes,

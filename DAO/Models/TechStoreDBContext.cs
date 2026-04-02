@@ -44,6 +44,8 @@ public partial class TechStoreDBContext : DbContext
 
     public virtual DbSet<Promotion> Promotions { get; set; }
 
+    public virtual DbSet<Voucher> Vouchers { get; set; }
+
     public virtual DbSet<PcComponentType> PcComponentTypes { get; set; }
 
     public virtual DbSet<PcBuild> PcBuilds { get; set; }
@@ -79,6 +81,7 @@ public partial class TechStoreDBContext : DbContext
             entity.Property(e => e.Email).HasMaxLength(510).IsRequired().HasColumnName("email");
             entity.Property(e => e.PasswordHash).HasMaxLength(1000).IsRequired().HasColumnName("password_hash");
             entity.Property(e => e.RoleId).HasColumnName("role_id").HasDefaultValue(1);
+            entity.Property(e => e.IsActive).HasColumnName("is_active").HasDefaultValue(true);
             entity.Property(e => e.CreatedAt)
                 .HasDefaultValueSql("(getdate())")
                 .HasColumnType("datetime")
@@ -193,8 +196,10 @@ public partial class TechStoreDBContext : DbContext
             entity.HasIndex(e => e.CreatedAt, "IX_orders_created_at");
             entity.HasIndex(e => e.CustomerId, "IX_orders_customer_id");
             entity.HasIndex(e => e.Status, "IX_orders_status");
+            entity.HasIndex(e => e.VoucherId, "IX_orders_voucher_id");
             entity.Property(e => e.Id).HasColumnName("id");
             entity.Property(e => e.AddressId).HasColumnName("address_id");
+            entity.Property(e => e.VoucherId).HasColumnName("voucher_id");
             entity.Property(e => e.CreatedAt)
                 .HasDefaultValueSql("(getdate())")
                 .HasColumnType("datetime")
@@ -205,6 +210,10 @@ public partial class TechStoreDBContext : DbContext
                 .HasDefaultValue("pending")
                 .HasColumnName("status");
             entity.Property(e => e.TotalAmount).HasColumnType("decimal(18, 2)").HasColumnName("total_amount");
+            entity.Property(e => e.DiscountAmount)
+                .HasColumnType("decimal(18, 2)")
+                .HasDefaultValue(0m)
+                .HasColumnName("discount_amount");
             entity.Property(e => e.ShippingFee)
                 .HasColumnType("decimal(18, 2)")
                 .HasDefaultValue(0m)
@@ -221,6 +230,11 @@ public partial class TechStoreDBContext : DbContext
                 .HasForeignKey(d => d.CustomerId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_orders_customer");
+
+            entity.HasOne(d => d.Voucher).WithMany(p => p.Orders)
+                .HasForeignKey(d => d.VoucherId)
+                .OnDelete(DeleteBehavior.SetNull)
+                .HasConstraintName("FK_orders_voucher");
         });
 
         // ── ORDER ITEM ───────────────────────────────────────────────
@@ -358,6 +372,27 @@ public partial class TechStoreDBContext : DbContext
             entity.Property(e => e.EndDate).HasColumnType("datetime").HasColumnName("end_date");
             entity.Property(e => e.Name).HasMaxLength(510).HasColumnName("name");
             entity.Property(e => e.StartDate).HasColumnType("datetime").HasColumnName("start_date");
+        });
+
+        // ── VOUCHER ─────────────────────────────────────────────────
+        modelBuilder.Entity<Voucher>(entity =>
+        {
+            entity.ToTable("voucher");
+            entity.Property(e => e.Id).HasColumnName("id");
+            entity.Property(e => e.Code).HasMaxLength(100).IsRequired().HasColumnName("code");
+            entity.Property(e => e.Name).HasMaxLength(510).HasColumnName("name");
+            entity.Property(e => e.DiscountPercent).HasColumnName("discount_percent");
+            entity.Property(e => e.MaxDiscount).HasColumnType("decimal(18, 2)").HasColumnName("max_discount");
+            entity.Property(e => e.MinOrderAmount).HasColumnType("decimal(18, 2)").HasColumnName("min_order_amount");
+            entity.Property(e => e.StartDate).HasColumnType("datetime").HasColumnName("start_date");
+            entity.Property(e => e.EndDate).HasColumnType("datetime").HasColumnName("end_date");
+            entity.Property(e => e.IsActive).HasColumnName("is_active").HasDefaultValue(true);
+            entity.Property(e => e.CreatedAt)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime")
+                .HasColumnName("created_at");
+
+            entity.HasIndex(e => e.Code).IsUnique().HasDatabaseName("UQ_voucher_code");
         });
 
         // ── PC COMPONENT TYPE ─────────────────────────────────────────

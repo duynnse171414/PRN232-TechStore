@@ -13,9 +13,13 @@ public partial class Order
 
     public long? AddressId { get; set; }
 
+    public long? VoucherId { get; set; }
+
     public string Status { get; set; }
 
     public decimal? TotalAmount { get; set; }
+
+    public decimal? DiscountAmount { get; set; }
 
     public decimal? ShippingFee { get; set; }
 
@@ -28,6 +32,8 @@ public partial class Order
     public virtual Address Address { get; set; }
 
     public virtual Customer Customer { get; set; }
+
+    public virtual Voucher Voucher { get; set; }
 
     public virtual ICollection<OrderItem> OrderItems { get; set; } = new List<OrderItem>();
 

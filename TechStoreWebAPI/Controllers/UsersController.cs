@@ -28,6 +28,7 @@ public class UsersController : ControllerBase
                 Id = u.Id,
                 Email = u.Email,
                 RoleName = u.Role.Name,
+                IsActive = u.IsActive,
                 CreatedAt = u.CreatedAt,
                 CustomerName = u.Customer != null ? u.Customer.Name : null
             })
@@ -52,6 +53,7 @@ public class UsersController : ControllerBase
             Id = user.Id,
             Email = user.Email,
             RoleName = user.Role?.Name,
+            IsActive = user.IsActive,
             CreatedAt = user.CreatedAt,
             CustomerName = user.Customer?.Name
         });
@@ -72,5 +74,18 @@ public class UsersController : ControllerBase
 
         await _db.Entry(user).Reference(u => u.Role).LoadAsync();
         return Ok(new { user.Id, user.Email, RoleName = user.Role?.Name });
+    }
+
+    /// <summary>Admin khóa/mở khóa tài khoản user</summary>
+    [HttpPut("{id}/active")]
+    public async Task<IActionResult> ToggleUserActive(long id, [FromBody] ToggleUserActiveDto dto)
+    {
+        var user = await _db.Users.FindAsync(id);
+        if (user == null) return NotFound();
+
+        user.IsActive = dto.IsActive;
+        await _db.SaveChangesAsync();
+
+        return Ok(new { user.Id, user.Email, user.IsActive });
     }
 }

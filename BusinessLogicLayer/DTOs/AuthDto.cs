@@ -25,6 +25,7 @@ public class UserDto
     public long Id { get; set; }
     public string Email { get; set; }
     public string RoleName { get; set; }
+    public bool IsActive { get; set; }
     public DateTime? CreatedAt { get; set; }
     public string CustomerName { get; set; }
 }
@@ -32,6 +33,17 @@ public class UserDto
 public class UpdateUserRoleDto
 {
     public int RoleId { get; set; }
+}
+
+public class CreateStaffAccountDto
+{
+    public string Email { get; set; }
+    public string Password { get; set; }
+}
+
+public class ToggleUserActiveDto
+{
+    public bool IsActive { get; set; }
 }
 
 public class AuthResultDto

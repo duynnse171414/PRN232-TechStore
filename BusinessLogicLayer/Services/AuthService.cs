@@ -32,6 +32,7 @@ public class AuthService : IAuthService
             Email = dto.Email,
             PasswordHash = HashPassword(dto.Password),
             RoleId = 1,   // 1 = customer (seed data)
+            IsActive = true,
             CreatedAt = DateTime.Now
         };
 
@@ -66,6 +67,9 @@ public class AuthService : IAuthService
         if (user == null || !VerifyPassword(dto.Password, user.PasswordHash))
             throw new UnauthorizedAccessException("Email hoặc mật khẩu không đúng.");
 
+        if (!user.IsActive)
+            throw new UnauthorizedAccessException("Tài khoản đã bị khóa.");
+
         return BuildResult(user, user.Customer?.Id);
     }
 
@@ -82,6 +86,44 @@ public class AuthService : IAuthService
 
         user.PasswordHash = HashPassword(dto.NewPassword);
         await _db.SaveChangesAsync();
+    }
+
+    public async Task<UserDto> CreateStaffAccountAsync(CreateStaffAccountDto dto)
+    {
+        if (string.IsNullOrWhiteSpace(dto.Email))
+            throw new InvalidOperationException("Email là bắt buộc.");
+
+        if (string.IsNullOrWhiteSpace(dto.Password) || dto.Password.Length < 6)
+            throw new InvalidOperationException("Mật khẩu phải có ít nhất 6 ký tự.");
+
+        if (await _db.Users.AnyAsync(u => u.Email == dto.Email))
+            throw new InvalidOperationException("Email đã được sử dụng.");
+
+        var staffRole = await _db.Roles.FirstOrDefaultAsync(r => r.Name == "staff");
+        if (staffRole == null)
+            throw new InvalidOperationException("Không tìm thấy role staff trong hệ thống.");
+
+        var user = new User
+        {
+            Email = dto.Email.Trim(),
+            PasswordHash = HashPassword(dto.Password),
+            RoleId = staffRole.Id,
+            IsActive = true,
+            CreatedAt = DateTime.Now
+        };
+
+        _db.Users.Add(user);
+        await _db.SaveChangesAsync();
+
+        return new UserDto
+        {
+            Id = user.Id,
+            Email = user.Email,
+            RoleName = staffRole.Name,
+            IsActive = user.IsActive,
+            CreatedAt = user.CreatedAt,
+            CustomerName = null
+        };
     }
 
     private AuthResultDto BuildResult(User user, long? customerId) => new()

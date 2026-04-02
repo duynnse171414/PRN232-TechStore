@@ -8,6 +8,8 @@ public class CreateOrderDto
 {
     public long CustomerId { get; set; }
     public long? AddressId { get; set; }
+    public long? VoucherId { get; set; }
+    public string VoucherCode { get; set; }
     public string Notes { get; set; }
     public string PaymentMethod { get; set; }
     public List<OrderItemDto> Items { get; set; } = new();
@@ -22,6 +24,8 @@ public class PlaceOrderRequest
     public string GuestPhone { get; set; }
 
     public long? AddressId { get; set; }
+    public long? VoucherId { get; set; }
+    public string VoucherCode { get; set; }
     public string Notes { get; set; }
     public string PaymentMethod { get; set; }
     public List<OrderItemDto> Items { get; set; } = new();
@@ -31,6 +35,8 @@ public class PlaceOrderRequest
 public class CheckoutFromCartRequest
 {
     public long? AddressId { get; set; }
+    public long? VoucherId { get; set; }
+    public string VoucherCode { get; set; }
     public string Notes { get; set; }
     /// <summary>Phương thức thanh toán: "cod", "vnpay", "card", "transfer"</summary>
     public string PaymentMethod { get; set; }
@@ -48,6 +54,9 @@ public class OrderResponseDto
     public long CustomerId { get; set; }
     public string CustomerName { get; set; }
     public string Status { get; set; }
+    public long? VoucherId { get; set; }
+    public string VoucherCode { get; set; }
+    public decimal? DiscountAmount { get; set; }
     public decimal? TotalAmount { get; set; }
     public decimal? ShippingFee { get; set; }
     public string Notes { get; set; }
