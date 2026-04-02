@@ -8,7 +8,7 @@ namespace TechStoreWebAPI.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-[Authorize(Roles = "admin,staff")]
+//[Authorize(Roles = "admin,staff")]
 public class DashboardController : ControllerBase
 {
     private readonly TechStoreDBContext _db;

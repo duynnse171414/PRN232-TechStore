@@ -2,6 +2,7 @@ using DAO.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.ComponentModel.DataAnnotations;
 
 namespace TechStoreWebAPI.Controllers;
 
@@ -13,30 +14,70 @@ public class BrandsController : ControllerBase
 
     public BrandsController(TechStoreDBContext db) => _db = db;
 
+    public sealed class BrandRequest
+    {
+        [Required(AllowEmptyStrings = false)]
+        public string Name { get; set; } = string.Empty;
+    }
+
     [HttpGet]
     public async Task<IActionResult> GetAll()
     {
-        var brands = await _db.Brands.Select(b => new { b.Id, b.Name }).ToListAsync();
+        var brands = await _db.Brands
+            .Select(b => new
+            {
+                b.Id,
+                b.Name,
+                TotalProducts = b.Products.Count()
+            })
+            .ToListAsync();
+
         return Ok(brands);
+    }
+
+    [HttpGet("{id}")]
+    public async Task<IActionResult> GetById(long id)
+    {
+        var brand = await _db.Brands
+            .Where(b => b.Id == id)
+            .Select(b => new { b.Id, b.Name })
+            .FirstOrDefaultAsync();
+
+        return brand == null ? NotFound() : Ok(brand);
     }
 
     [HttpPost]
     [Authorize(Roles = "admin,staff")]
-    public async Task<IActionResult> Create([FromBody] string name)
+    public async Task<IActionResult> Create([FromBody] BrandRequest request)
     {
-        var brand = new Brand { Name = name };
+        var normalizedName = request.Name.Trim();
+        if (string.IsNullOrWhiteSpace(normalizedName))
+        {
+            ModelState.AddModelError(nameof(BrandRequest.Name), "Name is required.");
+            return ValidationProblem(ModelState);
+        }
+
+        var brand = new Brand { Name = normalizedName };
         _db.Brands.Add(brand);
         await _db.SaveChangesAsync();
-        return Ok(new { brand.Id, brand.Name });
+        return CreatedAtAction(nameof(GetById), new { id = brand.Id }, new { brand.Id, brand.Name });
     }
 
     [HttpPut("{id}")]
     [Authorize(Roles = "admin,staff")]
-    public async Task<IActionResult> Update(long id, [FromBody] string name)
+    public async Task<IActionResult> Update(long id, [FromBody] BrandRequest request)
     {
         var brand = await _db.Brands.FindAsync(id);
         if (brand == null) return NotFound();
-        brand.Name = name;
+
+        var normalizedName = request.Name.Trim();
+        if (string.IsNullOrWhiteSpace(normalizedName))
+        {
+            ModelState.AddModelError(nameof(BrandRequest.Name), "Name is required.");
+            return ValidationProblem(ModelState);
+        }
+
+        brand.Name = normalizedName;
         await _db.SaveChangesAsync();
         return Ok(new { brand.Id, brand.Name });
     }
