@@ -807,8 +807,8 @@ BEGIN
         N'WELCOME10',
         N'Giam 10% don dau',
         10,
-        1000000,
-        500000,
+        10000,
+        500,
         DATEADD(DAY, -1, GETDATE()),
         DATEADD(MONTH, 6, GETDATE()),
         1,
@@ -901,8 +901,8 @@ BEGIN
     INSERT INTO dbo.product
         ([name], [sku], [description], [warranty], [brand_id], [category_id], [component_type_id], [price], [stock], [created_at])
     VALUES
-        (N'CPU Intel Core (CPU)', @SkuCpu, N'CPU cho PC (demo seed).', N'36 thang',
-         @BrandCpuId, @CatCpuId, @TypeCpuId, 6500000, 15, GETDATE());
+        (N'CPU Intel Core (CPU)', @SkuCpu, N'CPU PC (demo seed).', N'36 months',
+         @BrandCpuId, @CatCpuId, @TypeCpuId, 650, 15, GETDATE());
 END
 
 IF NOT EXISTS (SELECT 1 FROM dbo.product WHERE sku = @SkuGpu)
@@ -910,8 +910,8 @@ BEGIN
     INSERT INTO dbo.product
         ([name], [sku], [description], [warranty], [brand_id], [category_id], [component_type_id], [price], [stock], [created_at])
     VALUES
-        (N'Card đồ họa MSI (GPU)', @SkuGpu, N'Card đồ họa cho PC (demo seed).', N'12 thang',
-         @BrandGpuId, @CatGpuId, @TypeGpuId, 12000000, 5, GETDATE());
+        (N'Card MSI (GPU)', @SkuGpu, N'Card PC (demo seed).', N'12 months',
+         @BrandGpuId, @CatGpuId, @TypeGpuId, 1200, 5, GETDATE());
 END
 
 IF NOT EXISTS (SELECT 1 FROM dbo.product WHERE sku = @SkuRam)
@@ -919,8 +919,8 @@ BEGIN
     INSERT INTO dbo.product
         ([name], [sku], [description], [warranty], [brand_id], [category_id], [component_type_id], [price], [stock], [created_at])
     VALUES
-        (N'RAM Corsair DDR5 (RAM)', @SkuRam, N'RAM cho PC (demo seed).', N'36 thang',
-         @BrandRamId, @CatRamId, @TypeRamId, 2200000, 30, GETDATE());
+        (N'RAM Corsair DDR5 (RAM)', @SkuRam, N'RAM PC (demo seed).', N'36 months',
+         @BrandRamId, @CatRamId, @TypeRamId, 220, 30, GETDATE());
 END
 
 IF NOT EXISTS (SELECT 1 FROM dbo.product WHERE sku = @SkuSsd)
@@ -928,8 +928,8 @@ BEGIN
     INSERT INTO dbo.product
         ([name], [sku], [description], [warranty], [brand_id], [category_id], [component_type_id], [price], [stock], [created_at])
     VALUES
-        (N'SSD Samsung (SSD)', @SkuSsd, N'SSD cho PC (demo seed).', N'24 thang',
-         @BrandSsdId, @CatSsdId, @TypeSsdId, 1800000, 20, GETDATE());
+        (N'SSD Samsung (SSD)', @SkuSsd, N'SSD PC (demo seed).', N'24 months',
+         @BrandSsdId, @CatSsdId, @TypeSsdId, 180, 20, GETDATE());
 END
 
 IF NOT EXISTS (SELECT 1 FROM dbo.product WHERE sku = @SkuMainboard)
@@ -937,8 +937,8 @@ BEGIN
     INSERT INTO dbo.product
         ([name], [sku], [description], [warranty], [brand_id], [category_id], [component_type_id], [price], [stock], [created_at])
     VALUES
-        (N'Mainboard ASUS (Mainboard)', @SkuMainboard, N'Mainboard cho PC (demo seed).', N'12 thang',
-         @BrandMainboardId, @CatMainboardId, @TypeMainboardId, 4500000, 10, GETDATE());
+        (N'Mainboard ASUS (Mainboard)', @SkuMainboard, N'Mainboard  PC (demo seed).', N'12 months',
+         @BrandMainboardId, @CatMainboardId, @TypeMainboardId, 450, 10, GETDATE());
 END
 
 IF NOT EXISTS (SELECT 1 FROM dbo.product WHERE sku = @SkuPsu)
@@ -946,8 +946,8 @@ BEGIN
     INSERT INTO dbo.product
         ([name], [sku], [description], [warranty], [brand_id], [category_id], [component_type_id], [price], [stock], [created_at])
     VALUES
-        (N'Nguồn Cooler Master 650W (PSU)', @SkuPsu, N'Nguồn máy tính (demo seed).', N'24 thang',
-         @BrandPsuId, @CatPsuId, @TypePsuId, 1900000, 18, GETDATE());
+        (N'Cooler Master 650W (PSU)', @SkuPsu, N'PSU (demo seed).', N'24 months',
+         @BrandPsuId, @CatPsuId, @TypePsuId, 190, 18, GETDATE());
 END
 
 IF NOT EXISTS (SELECT 1 FROM dbo.product WHERE sku = @SkuCase)
@@ -955,8 +955,8 @@ BEGIN
     INSERT INTO dbo.product
         ([name], [sku], [description], [warranty], [brand_id], [category_id], [component_type_id], [price], [stock], [created_at])
     VALUES
-        (N'Vỏ case Cooler Master (Case)', @SkuCase, N'Vỏ case cho PC (demo seed).', N'12 thang',
-         @BrandCaseId, @CatCaseId, @TypeCaseId, 1500000, 12, GETDATE());
+        (N'Case Cooler Master (Case)', @SkuCase, N'Case PC (demo seed).', N'12 months',
+         @BrandCaseId, @CatCaseId, @TypeCaseId, 150, 12, GETDATE());
 END
 
 /* 7) Product images (1 hinh / product) */

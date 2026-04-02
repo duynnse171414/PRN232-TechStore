@@ -1,4 +1,4 @@
-using System.Net;
+﻿using System.Net;
 using System.Security.Cryptography;
 using System.Text;
 using BusinessLogicLayer.DTOs;
@@ -26,36 +26,53 @@ public class VnPayService : IVnPayService
     }
 
     public string CreatePaymentUrl(long orderId, decimal amount, string orderInfo, string ipAddress)
+{
+    var now = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow,
+        TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time"));
+
+
+    var vnpParams = new SortedDictionary<string, string>
     {
-        var now = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow,
-            TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time"));
+        { "vnp_Version", _version },
+        { "vnp_Command", "pay" },
+        { "vnp_TmnCode", _tmnCode },
+        { "vnp_Amount", ((long)(amount * 100)).ToString() },
+        { "vnp_CreateDate", now.ToString("yyyyMMddHHmmss") },
+        { "vnp_CurrCode", "VND" },
+        { "vnp_IpAddr", ipAddress },
+        { "vnp_Locale", "vn" },
+        { "vnp_OrderInfo", orderInfo },
+        { "vnp_OrderType", "other" },
+        { "vnp_ReturnUrl", _returnUrl },
+        { "vnp_TxnRef", orderId.ToString() },
+        { "vnp_ExpireDate", now.AddMinutes(15).ToString("yyyyMMddHHmmss") }
+    };
 
-        var vnpParams = new SortedDictionary<string, string>
+    // 1. Tạo chuỗi dữ liệu để băm (Raw Data - KHÔNG UrlEncode)
+    var rawData = new StringBuilder();
+    // 2. Tạo chuỗi query cho URL (CÓ UrlEncode)
+    var queryString = new StringBuilder();
+
+    foreach (var (key, value) in vnpParams)
+    {
+        if (!string.IsNullOrEmpty(value))
         {
-            { "vnp_Version", _version },
-            { "vnp_Command", "pay" },
-            { "vnp_TmnCode", _tmnCode },
-            { "vnp_Amount", ((long)(amount * 100)).ToString() },
-            { "vnp_CreateDate", now.ToString("yyyyMMddHHmmss") },
-            { "vnp_CurrCode", "VND" },
-            { "vnp_IpAddr", ipAddress },
-            { "vnp_Locale", "vn" },
-            { "vnp_OrderInfo", orderInfo },
-            { "vnp_OrderType", "other" },
-            { "vnp_ReturnUrl", _returnUrl },
-            { "vnp_TxnRef", orderId.ToString() },
-            { "vnp_ExpireDate", now.AddMinutes(15).ToString("yyyyMMddHHmmss") }
-        };
+            // Raw data: key=value&key=value
+            if (rawData.Length > 0) rawData.Append('&');
+            rawData.Append(key + "=" + value);
 
-        // Build query string from sorted params
-        var queryString = BuildQueryString(vnpParams);
-
-        // HMAC-SHA512 hash
-        var hash = HmacSha512(_hashSecret, queryString);
-        var paymentUrl = $"{_paymentUrl}?{queryString}&vnp_SecureHash={hash}";
-
-        return paymentUrl;
+            // Query string: key=value%20encode&...
+            if (queryString.Length > 0) queryString.Append('&');
+            queryString.Append(WebUtility.UrlEncode(key) + "=" + WebUtility.UrlEncode(value));
+        }
     }
+
+    // 3. Băm trên chuỗi rawData
+    var hash = HmacSha512(_hashSecret, rawData.ToString());
+    
+    // 4. Trả về URL với queryString
+    return $"{_paymentUrl}?{queryString}&vnp_SecureHash={hash}";
+}
 
     public VnPayCallbackResult ProcessCallback(IQueryCollection queryParams)
     {
@@ -129,7 +146,8 @@ public class VnPayService : IVnPayService
 
         using var hmac = new HMACSHA512(keyBytes);
         var hashBytes = hmac.ComputeHash(dataBytes);
-        return BitConverter.ToString(hashBytes).Replace("-", "").ToLower();
+        // Đổi ToLower() thành ToUpper()
+        return BitConverter.ToString(hashBytes).Replace("-", "").ToUpper();
     }
 }
 
